@@ -13,6 +13,7 @@ python virtigo.py <contigs.fasta> <output_file>
 Use the `-h` flag to get usage help and options. 
 
 Virtigo requires the user to install the following dependencies before usage:
+* Python (tested with versions 2.7.10 and 3.6.2)
 * BEDTools (tested with version 2.26)
 * BLAST+ suite (tested with version 2.6.0)
 * Samtools (tested with version 1.5)
