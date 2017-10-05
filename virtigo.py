@@ -43,7 +43,7 @@ def check_software():
 		avail = which(tool)
 		if not avail:
 			exit_message = "Error: no %s installation found. Make sure to " \
-			"install BLASTp and add the path to your $PATH variable." % tool
+			"install %s and add the path to your $PATH variable." % (tool, tool)
 			sys.exit(exit_message)
 
 
