@@ -2,11 +2,11 @@
 An annotation pipeline for viral contigs.
 
 # Usage
-Download all scripts and bins from GitHub in your desired manner and store in a target directory. Once downloaded, first run get_pvogs.sh to download the databases by navigating to the directory in the Terminal and executing
+Download all scripts and bins from GitHub in your desired manner and store in a target directory. Once downloaded, first run get_pvogs.sh to download the databases by navigating to the directory in the Terminal and executing:
 ```
 bash get_pvogs.sh
 ```
-Virtigo can then be run using Python version 2 or 3 by executing
+Virtigo can then be run using Python version 2 or 3 by executing:
 ```
 python virtigo.py <contigs.fasta> <output_file>
 ```
