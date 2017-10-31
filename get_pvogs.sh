@@ -6,7 +6,7 @@ echo Downloading pVOGs database...
 python scripts/1_get_pVOGs.py
 python scripts/2_get_sequences.py
 echo Creating BLAST database...
-python scripts/3_make_blast_db.sh
+bash scripts/3_make_blast_db.sh
 echo Creating HMMer database...
-python scripts/4_create_hmmer_db.sh
+bash scripts/4_create_hmmer_db.sh
 echo Finished creating database.

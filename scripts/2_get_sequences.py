@@ -15,8 +15,8 @@ def create_sequence_db():
 	base_path = os.getcwd()
 	sequence_db_path = os.path.join(base_path, "db", "pVOGs", "sequences")
 	try:
-		os.makedirs(sequence_db_path, exist_ok = True)
-	except TypeError:
+		os.mkdir(sequence_db_path)
+	except OSError:
 		print("Directory already exists, files may be overwritten.")
 	return(sequence_db_path)
 
