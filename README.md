@@ -8,7 +8,7 @@ bash get_pvogs.sh
 ```
 Virtigo can then be run using Python version 2 or 3 by executing:
 ```
-python virtigo.py <contigs.fasta> <output_file>
+python virtigo.py -c <contigs.fasta> -o <output_file>
 ```
 Use the `-h` flag to get usage help and options. 
 
