@@ -20,7 +20,7 @@ except ImportError:
 def get_user_input():
 
 	parser = argparse.ArgumentParser(description = "This script creates " \
-		"the directories for the pVOGs databases and download them.",
+		"the directories for the pVOGs databases and downloads them.",
 		epilog = "By default, the databases will be downloaded to the " \
 		"working directory. Users can specify a different directory " \
 		"using the appropriate flag.\nThe databases are quite large, " \

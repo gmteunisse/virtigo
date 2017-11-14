@@ -14,16 +14,27 @@ from scripts.classes.class_lca import LCA
 #Build the accesion to taxid conversion table
 def build_acc_taxid():
 
+	#Load the accession 2 taxid table with all viral refseq accessions
 	taxids = dict()
-	path = os.path.join("db", "translation_tables", "acc2taxid.txt")
+	path = os.path.join("db", "translation_tables", "acc2taxid_viral_refseq.txt")
 	with open(path, "r") as file:
 		for line in file:
 			if line[0] != "#":
 				line = line.strip().split()
 				acc = line[0]
 				taxid = line[1]
-				if line[0] not in taxids.keys():
-					taxids[acc] = taxid
+				taxids[acc] = taxid
+
+	#Load the accession 2 taxid table with all accessions for the VOGs database
+	path = os.path.join("db", "translation_tables", "acc2taxid_vogs.txt")
+	with open(path, "r") as file:
+		for line in file:
+			if line[0] != "#":
+				line = line.strip().split()
+				acc = line[0]
+				taxid = line[1]
+				taxids[acc] = taxid
+
 	return(taxids)
 
 
@@ -38,7 +49,11 @@ def build_vog_taxid(taxids):
 				data = line.strip().split(":")
 				vog_id = data[0]
 				acc = data[1]
-				taxid = taxids[data[1]]
+				try:
+					taxid = taxids[acc]
+				except KeyError:
+					print(acc)
+					continue
 				if vog_id not in vog_to_taxids.keys():
 					vog_to_taxids[vog_id] = list()
 				vog_to_taxids[vog_id].append(taxid)
@@ -134,10 +149,10 @@ def get_lca_blast(output_file, taxids, tree, alpha):
 				data = line.split("\t")
 				query_id = data[0]
 				query_data = data[0].split("|")
-				target_ids = data[1].split("|")
+				#target_ids = data[1]#.split("|")
 				contig_id = "|".join(query_data[0:len(query_data) - 1])
 				orf_id = query_data[-1]
-				acc = target_ids[1].split("-")[0]
+				acc = data[1]#target_ids[1].split("-")[0]
 				taxid = taxids[acc]
 
 				#Create contig_taxids list

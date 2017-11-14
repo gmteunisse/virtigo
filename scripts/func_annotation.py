@@ -89,7 +89,7 @@ def get_funcs_blast(output_file, orfF, ann_tab):
 			for line in in_file:
 				data = line.split("\t")
 				query = data[0]
-				acc = data[1].split("-")[1].replace("|", "")
+				acc = data[1]
 				try:
 					ann = ann_tab[acc]
 				except KeyError:
