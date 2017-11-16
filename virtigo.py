@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 #Import libraries
 import argparse
@@ -10,6 +10,7 @@ import distutils
 
 
 #Import modules
+from scripts.init_dbs import check_dbs, init_dbs
 from scripts.predict_orfs import predict_orfs, update_contig_ids
 from scripts.extract_orfs import extract_orfs
 from scripts.BLASTp import blast_search, parse_blast_result
@@ -17,6 +18,10 @@ from scripts.HMMer import hmmer_search, parse_hmmer_result, hmmer_best_hit
 from scripts.map_reads import map_reads
 from scripts.LCA_star import lca_star
 from scripts.func_annotation import get_functions
+import scripts.settings as settings
+
+#Define global variable: path to virtigo software
+settings.init(__file__)
 
 
 #Check whether a bin exists in the '$PATH' environmental variable. Courtesy of
@@ -38,7 +43,7 @@ def which(program):
 #check whether all software has been installed and is callable.
 def check_software():
 
-	software = ["blastp", "hmmscan", "samtools", "genomeCoverageBed"]
+	software = ["blastp", "hmmscan"]
 	for tool in software:
 		avail = which(tool)
 		if not avail:
@@ -46,18 +51,44 @@ def check_software():
 			"install %s and add the path to your $PATH variable." % (tool, tool)
 			sys.exit(exit_message)
 
+	software = ["samtools", "genomeCoverageBed"]
+	for tool in software:
+		avail = which(tool)
+		if not avail:
+			sys.stderr.write = "Error: no %s installation found. Read " \
+			"mapping and abundance estimation will not function. To " \
+			"prevent errors, install %s and add the path to your $PATH " \
+			"variable." % (tool, tool)
+
+#Check whether required input has been provided
+def check_input(user_args):
+	
+	if not user_args.contigs:
+		exit_message = "\nError: no contigs file provided. See -h.\n"
+		sys.exit(exit_message)
+	if not user_args.output:
+		exit_message = "\nError: no output filename provided. See -h.\n"
+		sys.exit(exit_message)
+
+	#Convert to abspaths
+	user_args.contigs = os.path.abspath(user_args.contigs)
+	user_args.output = os.path.abspath(user_args.output)
+	if user_args.reads:
+		user_args.reads = os.path.abspath(user_args.reads)
+	return(user_args)
+
 
 #Get the OS so that the correct bins are called
 def get_bins():
 
 	os_type = sys.platform.lower()
-	if os_type == "darwin":		#OSX
-		bin_path = os.path.join("bin", "osx")
-	elif os_type == "linux":
-		bin_path = os.path.join("bin", "linux")
+	if "darwin" in os_type:		#OSX
+		bin_path = os.path.join(settings.vrtg_path, "bin", "osx")
+	elif "linux" in os_type:
+		bin_path = os.path.join(settings.vrtg_path, "bin", "linux")
 	else:
-		exit_message = "OS not recognized. Exiting."
-		sys.exit(exit_message)
+		print("OS not recognized, assuming linux.")
+		bin_path = os.path.join(settings.vrtg_path, "bin", "linux")
 	bin_path = os.path.abspath(bin_path)
 	return(bin_path, os_type)
 
@@ -108,6 +139,12 @@ def get_user_args():
 		help = "Redirect stderr to <output>.err.", default = False,
 		action = "store_true")
 
+	parser.add_argument("-i", dest = "init", \
+		help = "Initializes Virtigo by downloading the required databases " \
+		"and generating searchable files. An active internet connection and " \
+		"~2 GB of disk space are required." , default = False,
+		action = "store_true")
+
 	parser.add_argument("-n", metavar = "n_threads", dest = "threads", \
 		help = "Number of threads to use for BLASTp and HMMer. " \
 		"Default (0) will use all detected threads.", \
@@ -150,23 +187,6 @@ def get_user_args():
 		choices = ["blast", "hmmer", "both"])
 
 	user_args = parser.parse_args()
-
-	#Check whether all input is correct
-	if not user_args.contigs:
-		parser.print_help()
-		exit_message = "\nError: no contigs file provided.\n"
-		sys.exit(exit_message)
-	elif not user_args.output:
-		parser.print_help()
-		exit_message = "\nError: no output filename provided.\n"
-		sys.exit(exit_message)
-
-	#Convert to abspaths
-	user_args.contigs = os.path.abspath(user_args.contigs)
-	user_args.output = os.path.abspath(user_args.output)
-	if user_args.reads:
-		user_args.reads = os.path.abspath(user_args.reads)
-
 	return(user_args)
 
 
@@ -177,12 +197,26 @@ def main():
 	args = get_n_threads(args)
 	if args.err:
 		sys.stderr = open(args.output + ".err", "w")
-	bin_path, os_type = get_bins()
-	check_software()
-	print("\nUsing %d threads on a %s based OS." % (args.threads, os_type))
 
+	#Get OS type to call appropriate bins
+	bin_path, os_type = get_bins()
+
+	#Check whether required software is callable
+	check_software()
+
+	#Check whether Virtigo is run in initialization mode
+	if args.init:
+		init_dbs()
+		sys.exit(0)
+
+	#Check whether databases are present
+	check_dbs()
+
+	#Check input
+	args = check_input(args)
 
 	#Predict ORFs and extract the translated sequences from contigs
+	print("\nUsing %d threads on a %s based OS." % (args.threads, os_type))
 	print("\nPredicting ORFs with MetaGeneAnnotator...")
 	args.contigs, tmp = update_contig_ids(args.contigs)
 	mga_out = predict_orfs(bin_path, args.contigs, args.output)

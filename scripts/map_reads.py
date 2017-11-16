@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 #Import libraries
 import sys
@@ -8,6 +8,9 @@ from tempfile import mkdtemp
 from shutil import rmtree
 from scripts.extract_orfs import ORF, parse_mga_out
 from collections import OrderedDict
+
+#Import settings
+import scripts.settings as settings
 
 class Contig_coverage:
 

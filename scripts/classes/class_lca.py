@@ -44,7 +44,13 @@ class LCA:
 		else:
 			self.total = total
 		for id in self.taxids:
-			self.to_visit += self.tree[id].add_count(1)
+			try:
+				self.to_visit += self.tree[id].add_count(1)
+			#This means that the node_id does not exist. This should not
+			#occur, but sometimes it happens inexplicably.
+			except KeyError:
+				self.to_visit += self.tree["10239"].add_count(1)
+				sys.stderr.write("Error: non-existent node with TaxID %s" % id)
 		self.to_visit = set(self.to_visit)	#Reduce to union
 
 		candidate = ["10239", 10000000.00] 	#Root with infinite entropy

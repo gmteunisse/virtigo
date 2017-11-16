@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 #Import libraries
 import sys
@@ -6,6 +6,9 @@ import os
 import subprocess
 import re
 from tempfile import NamedTemporaryFile
+
+#Import settings
+import scripts.settings as settings
 
 #Calls MetaGenomeAnnotator to predict genes and stores predictions in file
 def predict_orfs(bin_path, input_file, output_file):
@@ -19,7 +22,7 @@ def predict_orfs(bin_path, input_file, output_file):
 	#Catch errors
 	if error:
 		exit_message = "MetaGeneAnnotator error:\n%s" % (error.decode("ascii"))
-		sys.exit(exit_message)
+		sys.stderr.write(exit_message)
 
 	output = output.decode("ascii")
 	#Write to file

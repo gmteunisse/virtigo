@@ -1,8 +1,11 @@
-#!usr/bin/python
+#!/usr/bin/env python
 
 import os
 import re
 import sys
+
+#Import settings
+import scripts.settings as settings
 
 
 #Stores linked annotations
@@ -33,7 +36,7 @@ def build_ann_table():
 
 	#Read annotation table and store in dict based on NCBI accession
 	ann_tab = dict()
-	path = os.path.join("db", "translation_tables", "acc2func.txt")
+	path = settings.acc2fun_path
 	with open(path, "r") as file:
 		for line in file:
 			if line[0] != "#":
@@ -50,26 +53,19 @@ def build_ann_table():
 #Build the table that converts VOG ids to NCBI accessions
 def build_vog_table():
 
-	#A subset of species contains a ":" in their name, but ":" is also a split-
-	#character. 
-	def sub_colon(line):
-
-		colon = re.search("phi[0-9]+.?.?:[0-9]", line)
-		if colon:
-			line = line.replace(colon.group(0), \
-			colon.group(0).replace(":", "="))
-		return(line)
-
 	#Read protein table and store translation from VOG id to NCBI accessions
 	vog_tab = dict()
-	path = os.path.join("db", "pVOGs", "protein_table", "protein_table.txt")
+	path = settings.prot_tbl_path
 	with open(path, "r") as file:
 		for line in file:
 			if line[0] != "#":
-				line = sub_colon(line)
+				#line = sub_colon(line)
 				data = line.split(":")
 				id = data[0]
-				acc = data[3].split("|")[0].split("-")[1]
+				try:
+					acc = data[3].split("|")[0].split("-")[1]
+				except IndexError:
+					acc = data[4].split("|")[0].split("-")[1]
 				if id not in vog_tab.keys():
 					vog_tab[id] = list()
 				vog_tab[id].append(acc)

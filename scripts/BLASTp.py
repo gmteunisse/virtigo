@@ -1,9 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 #Import libraries
 import subprocess
 import sys
 from tempfile import NamedTemporaryFile
+
+#Import settings
+import scripts.settings as settings
 
 
 #Do a BLASTp search vs pVOGs sequences
@@ -17,10 +20,10 @@ def blast_search(output_file, e_value, threads, method):
 			"-outfmt 6 " \
 			"-evalue %f " \
 			"-num_threads %d " \
-			"-db db/pVOGs/blast_db/pVOGs_db " \
+			"-db %s " \
 			"%s " \
-			"-out %s.blast "  %  (output_file, e_value, threads, blast_opt,
-									output_file)
+			"-out %s.blast "  %  (output_file, e_value, threads, \
+				settings.blast_db_path, blast_opt, output_file)
 	process = subprocess.Popen(call.split(), stdout = subprocess.PIPE, \
 		stderr = subprocess.PIPE)
 	output, error = process.communicate()
@@ -28,7 +31,7 @@ def blast_search(output_file, e_value, threads, method):
 		print("BLASTp:\n%s" % (output.decode("ascii")))
 	if error:
 		exit_message = "BLASTp error:\n%s" % (error.decode("ascii"))
-		sys.exit(exit_message)
+		sys.stderr.write(exit_message)
 
 
 #Create a temporary file with sequences for HMMer searching

@@ -1,4 +1,4 @@
-#!usr/bin/python
+#!/usr/bin/env python
 
 import os
 import re
@@ -10,13 +10,16 @@ from copy import copy
 from scripts.classes.class_node import Node
 from scripts.classes.class_lca import LCA
 
+#Import settings
+import scripts.settings as settings
+
 
 #Build the accesion to taxid conversion table
 def build_acc_taxid():
 
 	#Load the accession 2 taxid table with all viral refseq accessions
 	taxids = dict()
-	path = os.path.join("db", "translation_tables", "acc2taxid_viral_refseq.txt")
+	path = settings.acc2tax_refseq_path
 	with open(path, "r") as file:
 		for line in file:
 			if line[0] != "#":
@@ -26,7 +29,7 @@ def build_acc_taxid():
 				taxids[acc] = taxid
 
 	#Load the accession 2 taxid table with all accessions for the VOGs database
-	path = os.path.join("db", "translation_tables", "acc2taxid_vogs.txt")
+	path = settings.acc2tax_vogs_path
 	with open(path, "r") as file:
 		for line in file:
 			if line[0] != "#":
@@ -42,7 +45,7 @@ def build_acc_taxid():
 def build_vog_taxid(taxids):
 
 	vog_to_taxids = dict()
-	path = os.path.join("db", "pVOGs", "protein_table", "protein_table.txt")
+	path = settings.prot_tbl_path
 	with open(path, "r") as file:
 		for line in file:
 			if line[0] != "#":
@@ -60,12 +63,11 @@ def build_vog_taxid(taxids):
 	return(vog_to_taxids)
 
 
-#Build the NCBI tax tree (for viruses) based on a custom file.
+#Build the NCBI tax tree for viruses based on a custom file.
 def build_ncbi_tree():
 
 	#Read the file
-	path = os.path.join("db", "tax_tree", "viral_tax_tree.txt")
-	path = os.path.normpath(path)
+	path = settings.tree_path
 	file = open(path, "r")
 	data = file.readlines()
 	tree = dict()
@@ -149,11 +151,16 @@ def get_lca_blast(output_file, taxids, tree, alpha):
 				data = line.split("\t")
 				query_id = data[0]
 				query_data = data[0].split("|")
-				#target_ids = data[1]#.split("|")
 				contig_id = "|".join(query_data[0:len(query_data) - 1])
 				orf_id = query_data[-1]
-				acc = data[1]#target_ids[1].split("-")[0]
-				taxid = taxids[acc]
+				acc = data[1]
+				try:
+					taxid = taxids[acc]
+				#The NCBI accession2taxid file on the ftp seems to be incomplete,
+				#thus KeyErrors can be expected. In such case, simply assign "Virus"
+				except KeyError:
+					taxid = "10239"
+					sys.stderr.write("Error: non-existent TaxID for accession %s" % acc)
 
 				#Create contig_taxids list
 				if contig_id not in contig_taxids.keys():

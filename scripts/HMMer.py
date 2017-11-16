@@ -1,10 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 #Import libraries
 import subprocess
 import sys
 import os
 from tempfile import NamedTemporaryFile
+
+#Import settings
+import scripts.settings as settings
 
 
 #Do a HMMer search vs pVOGs HMMs
@@ -13,14 +16,14 @@ def hmmer_search(hmmer_in, output_file, e_value, threads):
 	call = 	"hmmscan --incE %f -E %f " \
 	"--tblout %s.hmmer " \
 	"--cpu %d " \
-	"db/pVOGs/hmmer_db/hmmer_db " \
-	"%s" % (e_value, e_value, output_file, threads, hmmer_in)
+	"%s " \
+	"%s" % (e_value, e_value, output_file, threads, settings.hmmer_db_path, hmmer_in)
 	process = subprocess.Popen(call.split(), stdout = subprocess.PIPE, \
 		stderr = subprocess.PIPE)
 	output, error = process.communicate()
 	if error:
 		exit_message = "HMMer error:\n%s" % (error.decode("ascii"))
-		sys.exit(exit_message)
+		sys.stderr.write(exit_message)
 
 #Count the number of ORFs that has been annotated
 def parse_hmmer_result(output_file):

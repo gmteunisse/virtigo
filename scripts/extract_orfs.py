@@ -1,8 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 #Import libraries
 import sys
 import os
+
+#Import settings
+import scripts.settings as settings
 
 
 #Class that stores data for an MGA predicted ORF.
@@ -136,7 +139,7 @@ def parse_mga_out(mga_out):
 def read_codon_tab():
 
 	codon_table = dict()
-	path = os.path.join("db", "translation_tables", "codon_table.txt")
+	path = os.path.join(settings.codon_tbl_path)
 	for line in open(path, "r"):
 		data = line.strip().split("\t")
 		codon_table[data[0]] = data[1]
