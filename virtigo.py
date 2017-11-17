@@ -10,15 +10,15 @@ import distutils
 
 
 #Import modules
-from scripts.init_dbs import check_dbs, init_dbs
-from scripts.predict_orfs import predict_orfs, update_contig_ids
-from scripts.extract_orfs import extract_orfs
-from scripts.BLASTp import blast_search, parse_blast_result
-from scripts.HMMer import hmmer_search, parse_hmmer_result, hmmer_best_hit
-from scripts.map_reads import map_reads
-from scripts.LCA_star import lca_star
-from scripts.func_annotation import get_functions
-import scripts.settings as settings
+from modules.init_dbs import check_dbs, init_dbs
+from modules.predict_orfs import predict_orfs, update_contig_ids
+from modules.extract_orfs import extract_orfs
+from modules.BLASTp import blast_search, parse_blast_result
+from modules.HMMer import hmmer_search, parse_hmmer_result, hmmer_best_hit
+from modules.map_reads import map_reads
+from modules.LCA_star import lca_star
+from modules.func_annotation import get_functions
+import modules.settings as settings
 
 #Define global variable: path to virtigo software
 settings.init(__file__)
@@ -55,10 +55,10 @@ def check_software():
 	for tool in software:
 		avail = which(tool)
 		if not avail:
-			sys.stderr.write = "Error: no %s installation found. Read " \
+			sys.stderr.write("\nError: no %s installation found. Read " \
 			"mapping and abundance estimation will not function. To " \
 			"prevent errors, install %s and add the path to your $PATH " \
-			"variable." % (tool, tool)
+			"variable." % (tool, tool))
 
 #Check whether required input has been provided
 def check_input(user_args):

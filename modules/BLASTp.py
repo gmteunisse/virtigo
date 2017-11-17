@@ -6,7 +6,7 @@ import sys
 from tempfile import NamedTemporaryFile
 
 #Import settings
-import scripts.settings as settings
+import modules.settings as settings
 
 
 #Do a BLASTp search vs pVOGs sequences
