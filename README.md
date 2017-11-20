@@ -1,18 +1,8 @@
 # Virtigo.
 An annotation pipeline for viral contigs.
 
-# Usage
-Download all scripts and bins from GitHub in your desired manner and store in a target directory. Once downloaded, first run get_pvogs.sh to download the databases by navigating to the directory in the Terminal and executing:
-```
-bash get_pvogs.sh
-```
-Virtigo can then be run using Python version 2 or 3 by executing:
-```
-python virtigo.py -c <contigs.fasta> -o <output_file>
-```
-Use the `-h` flag to get usage help and options. 
-
-Virtigo requires the user to install the following dependencies before usage:
+## Dependencies
+Virtigo is dependent on the following software packages:
 * Python (tested with versions 2.7.10 and 3.6.2)
 * BEDTools (tested with version 2.26)
 * BLAST+ suite (tested with version 2.6.0)
@@ -20,8 +10,33 @@ Virtigo requires the user to install the following dependencies before usage:
 * HMMer (tested with version 3.1)
 * SciPy (optional; tested with version 0.18.1)
 
-Please add the path to the bins of each dependency to your $PATH variable and modify bin name as such that they can be called as:
+Please add the path to the bins of each dependency to your $PATH variable and make sure that the following bins can be called:
 * genomeCoverageBed
 * blastp
 * samtools
 * hmmscan
+
+## Installation
+Download all scripts and bins from GitHub in your desired manner and store in a target directory. Once downloaded, place the Virtigo directory in your preferred path and the path to you $PATH variable:
+```
+export PATH=$PATH:path/to/virtigo/dir
+```
+Virtigo can then be run using Python version 2 or 3 by executing:
+```
+virtigo.py <options>
+```
+
+## Initalization
+Before Virtigo can be used, the appropriate databases need to be downloaded and generated. To do so, make sure you have an active internet connection and run Virtigo in initialization / update mode:
+```
+virtigo.py -i
+```
+
+## Usage
+Run Virtigo in its standard mode by executing:
+```
+virtigo.py -c <path/to/contigs_file.fasta> -o <path/to/output_file>
+```
+For more usage options and help, use the `-h` flag.
+
+
