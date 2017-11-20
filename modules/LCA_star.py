@@ -46,12 +46,24 @@ def build_vog_taxid(taxids):
 
 	vog_to_taxids = dict()
 	path = settings.prot_tbl_path
+
+	#The pVOGs database contains some erroneous IDs,
+	#which need to be translated to accesssions.
+	phis = {"segmentsphi12" :	"NC_004175.1", \
+			"segmentsphi13" :	"NC_004171.1", \
+			"segmentsphi2954" :	"NC_012093.1", \
+			"segmentsphi6":		"NC_003715.1", \
+			"segmentsphi8" :	"NC_003299.1", \
+			"segmentsphiNN" :	"KJ957164.1"}
+
 	with open(path, "r") as file:
 		for line in file:
 			if line[0] != "#":
 				data = line.strip().split(":")
 				vog_id = data[0]
 				acc = data[1]
+				if acc in phis:
+					acc = phis[acc]
 				try:
 					taxid = taxids[acc]
 				except KeyError:

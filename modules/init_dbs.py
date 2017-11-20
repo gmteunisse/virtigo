@@ -285,7 +285,7 @@ def make_tree_file():
 		for line in nodes_file:
 			data = line.split("\t|\t")
 			div = int(data[4])
-			if div in [3, 9]:	#Divs 3 and 9 represent phages and viruses
+			if div in [3, 9, 11]:	#3: phages; 9: viruses; 11: environment
 				viral_node = Node()
 				viral_node.tax_id = int(data[0])
 				viral_node.parent_tax_id = int(data[1])
