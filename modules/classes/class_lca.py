@@ -143,11 +143,19 @@ class LCA:
 
 
 	#Print all nodes in the tree that have counts assigned to them.
-	def print_tree(self):
+	def print_tree(self, out_file):
 
-		print("\n\n%s:\n" % self.id)
-		header = "%s\t" * 10
-		print(header % ("s_king", "gen_typ", "order", "family", \
-			 "subfam", "genus", "sub_gen", "species", "sub_sp", "no rank"))
-		self.tree["10239"].print_tree(depth = 10, lca = True) #10239 is root
+		with open(out_file, "a") as out_file:
+			out_file.write(">Contig:\t%s\nNumber of predicted ORFs:\t%s\n\n" % (self.id, self.total))
+			header = "\t" + "%s\t" * 9 + "%s\n\n"
+			out_file.write(header % ("s_king", "gen_typ", "order", "family", \
+			 				"subfam", "genus", "sub_gen", "species", "sub_sp", "no rank"))
+			to_write = str()
+			tree = self.tree["10239"].print_tree(depth = 10, lca = True) #10239 is root
+			if tree:
+				for subtree in tree:
+					for line in subtree:
+						to_write += line
+			to_write += "\n"
+			out_file.write(to_write)
 

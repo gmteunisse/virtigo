@@ -134,9 +134,11 @@ def build_ncbi_tree():
 
 
 #Do the LCA* calculations and write to output file.
-def calc_write_lca(lca_obj, out_file, tree, n_orfs = False):
+def calc_write_lca(lca_obj, out_file, tree, n_orfs = False, print_tree = False, tree_out = False):
 
 	lca_taxid = lca_obj.calc_lca(n_orfs)
+	if print_tree:
+		lca_obj.print_tree(tree_out)
 	p_value = lca_obj.calc_p()
 	lca_obj.clean_tree()
 	write_lca(lca_obj.id, lca_taxid, p_value, out_file, tree)
@@ -199,8 +201,12 @@ def get_lca_blast(output_file, taxids, tree, alpha):
 
 
 #Calculates the LCA of every contig based on LCAs of predicted ORFs.
-def get_lca_contig(output_file, contig_taxids, tree, alpha, orf_count):
+def get_lca_contig(output_file, contig_taxids, tree, alpha, orf_count, print_tree):
 
+	tree_out = output_file + ".con.tree"
+	tree_file = open(tree_out, "w")
+	tree_file.write("\n")
+	tree_file.close()
 	with open(output_file + ".con.tax", "w") as tax_out:
 		tax_out.write("%s\t%s\t%s\t%s\n" % ("#contig_id", "NCBI_TaxID", \
 												"p_value", \
@@ -209,7 +215,7 @@ def get_lca_contig(output_file, contig_taxids, tree, alpha, orf_count):
 			n_orfs = orf_count[id]
 			contig_lca = LCA(id, tree, alpha)
 			contig_lca.taxids = contig_taxids[id]
-			calc_write_lca(contig_lca, tax_out, tree, n_orfs)
+			calc_write_lca(contig_lca, tax_out, tree, n_orfs, print_tree, tree_out)
 
 
 #Calculate the LCA of every predicted ORF based on HMMer out.
@@ -264,7 +270,7 @@ def get_lca_hmmer(output_file, tree, alpha, vog_to_taxids, to_write):
 
 
 #Calculates the LCA-star based on BLAST and HMMer output for ORFs and contigs.
-def lca_star(output_file, alpha, soft, orf_alg, cont_alg, orf_count):
+def lca_star(output_file, orf_alpha, soft, orf_alg, cont_alg, cont_alpha, orf_count, print_tree):
 
 	#Build required translation tables and NCBI taxon tree
 	tree = build_ncbi_tree()
@@ -272,8 +278,6 @@ def lca_star(output_file, alpha, soft, orf_alg, cont_alg, orf_count):
 	vog_to_taxids = build_vog_taxid(taxids)
 
 	#Set alphas
-	orf_alpha = alpha
-	cont_alpha = alpha
 	if orf_alg == "lca":
 		orf_alpha = 0.99999 #LCA looks for a parent node shared by all children
 	if cont_alg == "lca":
@@ -293,7 +297,7 @@ def lca_star(output_file, alpha, soft, orf_alg, cont_alg, orf_count):
 		contig_taxids = merge_dicts(contig_taxids_blast, contig_taxids_hmmer)
 
 	#Calculate contig LCAs
-	get_lca_contig(output_file, contig_taxids, tree, cont_alpha, orf_count)
+	get_lca_contig(output_file, contig_taxids, tree, cont_alpha, orf_count, print_tree)
 
 
 #Merge two dictionaries

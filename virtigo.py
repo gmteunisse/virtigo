@@ -115,8 +115,14 @@ def get_user_args():
 		"\n\t HMMer (tested with v3.1);" \
 		"\n\t SciPy (tested with v0.18.1).")
 
-	parser.add_argument("-a", metavar = "alpha", dest = "alpha", \
-		help = "Majority criterium for LCA* algorithm (default = 0.5).", \
+	parser.add_argument("--orf_alpha", metavar = "orf_alpha", dest = "orf_alpha", \
+		help = "Majority criterium for LCA* algorithm for ORFs (default = 0.5).", \
+		default = 0.5, type = float)
+
+	parser.add_argument("--cont_alpha", metavar = "cont_alpha", dest = "cont_alpha", \
+		help = "Majority criterium for LCA* algorithm for contigs "
+		"(default = 0.5). Consider lowering this alpha, as many predicted " \
+		"viral ORFs do not map to database.", \
 		default = 0.5, type = float)
 
 	parser.add_argument("-c", metavar = "input_contigs", dest = "contigs", \
@@ -172,6 +178,11 @@ def get_user_args():
 		default = "best_hit", type = str, \
 		choices = ["best_hit", "all"])
 
+	parser.add_argument("--print_tree", dest = "print_tree", \
+		help = "Creates a file with  tree-like representations for " \
+		"the LCA tree of every contig.", default = False,
+		action = "store_true")
+
 	parser.add_argument("-r", metavar = "input_reads", dest = "reads", \
 		help = "Path to fastq file containing (QC-ed) reads. If specified, " \
 		"the number of mapped bases per contig and predicted ORF will be " \
@@ -223,10 +234,9 @@ def main():
 	n, orf_count = extract_orfs(mga_out, args.contigs, args.output)
 	print("Predicted %d ORFs." % n)
 
-
 	#Do a BLASTp mapping against pVOGs sequences
 	if args.soft == "blast" or args.soft == "both":
-		print("\nBLASTp searching %d predicted ORFs against pVOGs " \
+		print("\nBLASTp searching %d predicted ORFs against RefSeq " \
 			"sequences..." % n)
 		blast_search(args.output, args.e_value, args.threads, args.orf_alg)
 		m, hmmer_in_tmp = parse_blast_result(args.output)
@@ -253,8 +263,8 @@ def main():
 
 	#Calculate the ORF LCAs based on BLAST results
 	print("\nObtaining taxonomic annotations for predicted ORFs and contigs...")
-	lca_star(args.output, args.alpha, args.soft, args.orf_alg, \
-		args.cont_alg, orf_count)
+	lca_star(args.output, args.orf_alpha, args.soft, args.orf_alg, \
+		args.cont_alg, args.cont_alpha, orf_count, args.print_tree)
 	print("Done.")
 
 

@@ -86,8 +86,46 @@ class Node:
 
 	#Print the current node name and recursively print child node names in a 
 	#tree-like structure.
-	def print_tree(self, depth, lca = False, prev_ind = 0):
+	def print_tree(self, depth, lca = False, sisters = False):
 
+		if self.index < depth:
+			if self.visited:
+				tree = list()
+				active_children = 0
+				for key in self.children.keys():
+					if self.children[key].visited:
+						active_children += 1
+				if self.parent:
+					length = self.index - self.parent.index
+				else:
+					length = 1
+				for key in self.children.keys():
+					if self.children[key].visited:
+						active_children -= 1
+						if active_children > 0:
+							pass_sisters = True
+						else:
+							pass_sisters = False
+						subtree = self.children[key].print_tree(depth, lca, pass_sisters)
+						if not subtree:
+							continue
+						for line in subtree:
+							if sisters:
+								line = "|" + " " * 7 + " " * 8 * (length - 1)+ line
+							else:
+								line = " " * 8 * length + line
+							tree.append(line)
+				branch = "+" + "-" * 7 + ("-" * 8 * (length - 1))
+				line = "%s%s (%d; %d)\n" % (branch, self.name, \
+										self.count, self.count_collapsed)
+				tree.insert(0, line)
+				return(tree)
+
+
+	'''#Print the current node name and recursively print child node names in a 
+	#tree-like structure.
+	def print_tree(self, depth, lca = False, prev_ind = 0):
+		to_write = str()
 		if not lca:
 			if self.index < depth:
 				indent = "\t" * self.index
@@ -97,12 +135,15 @@ class Node:
 		else:
 			if self.index < depth:
 				if self.visited:
-					indent = "\t" * prev_ind
-					indent += "|" + "_"* 7 * (self.index - prev_ind)
-					print("%s%s (%d; %d)" % (indent, self.name, \
-											self.count, self.count_collapsed))
+					indent = "\t" * prev_ind * 2
+					indent += "+" + "-"* 7 * (self.index - prev_ind)
+					to_write = "%s%s (%d; %d)\n" % (indent, self.name, \
+											self.count, self.count_collapsed)
 					for key in self.children.keys():
-						self.children[key].print_tree(depth, lca, self.index)
+						to_write += self.children[key].print_tree(depth, lca, self.index)
+					return(to_write)
+
+		return(to_write)'''
 
 
 	#Recursively reset the visited status of child nodes to their unvisited
