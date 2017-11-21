@@ -30,7 +30,7 @@ Virtigo can then be run using Python version 2 or 3 by executing:
 virtigo.py <options>
 ```
 
-## Initalization
+## Initialization
 Before Virtigo can be used, the appropriate databases need to be downloaded and generated. To do so, make sure you have an active internet connection and run Virtigo in initialization / update mode:
 ```
 virtigo.py -i
