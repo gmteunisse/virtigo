@@ -1,5 +1,9 @@
 # Virtigo.
-An annotation pipeline for viral contigs.
+Virtigo is an annotation pipeline for viral contigs. It is comparable to PROKKA, but specific to viral sequences. The pipeline takes viral contigs, predicts open reading frames (ORFs) and then maps these ORFs to RefSeq Viral / pVOGs to obtain taxonomic and functional annotations. Taxonomic annotations are determined using the LCA(\*) algorithm. The predicted ORF taxonomies are subsequently used to assign taxonomic annotations to contigs, also using LCA(\*).
+
+Other features include:
+* Outputting a tree-like representation of the taxonomy of each contig.
+* Mapping reads to ORFs and contigs to determine the average coverage per ORF/contig for abundance estimation.
 
 ## Dependencies
 Virtigo is dependent on the following software packages:
