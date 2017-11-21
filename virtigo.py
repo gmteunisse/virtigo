@@ -236,14 +236,18 @@ def main():
 
 	#Do a BLASTp mapping against pVOGs sequences
 	if args.soft == "blast" or args.soft == "both":
-		print("\nBLASTp searching %d predicted ORFs against RefSeq " \
-			"sequences..." % n)
-		blast_search(args.output, args.e_value, args.threads, args.orf_alg)
-		m, hmmer_in_tmp = parse_blast_result(args.output)
-		hmmer_in = hmmer_in_tmp.name
-		print("Mapped %d of %d ORFs using BLASTp." % (m, n))
-		if args.soft == "blast":
-			del(hmmer_in)
+		if os.path.exists(args.output + ".blast"):
+			sys.stderr.write("Error: BLAST output already exists. " \
+				"Refusing to overwrite.\n")
+		else:
+			print("\nBLASTp searching %d predicted ORFs against RefSeq " \
+				"sequences..." % n)
+			blast_search(args.output, args.e_value, args.threads, args.orf_alg)
+			m, hmmer_in_tmp = parse_blast_result(args.output)
+			hmmer_in = hmmer_in_tmp.name
+			print("Mapped %d of %d ORFs using BLASTp." % (m, n))
+			if args.soft == "blast":
+				del(hmmer_in)
 
 
 	#Do a HMMer mapping against pVOGs HMMs
@@ -251,14 +255,18 @@ def main():
 		hmmer_in = "%s.fasta" % args.output
 		m = 0
 	if args.soft == "hmmer" or args.soft == "both":
-		print("\nHMMer searching %d predicted ORFs against pVOGs " \
-			"HMMs..." % (n-m))
-		hmmer_search(hmmer_in, args.output, args.e_value, args.threads)
-		o = parse_hmmer_result(args.output)
-		print("Mapped %d of %d ORFs using HMMer." % (o, n-m))
-		del(hmmer_in)
-		if args.orf_alg == "best_hit":
-			hmmer_best_hit(args.output)
+		if os.path.exists(args.output + ".hmmer"):
+			sys.stderr.write("Error: HMMER output already exists. " \
+				"Refusing to overwrite.\n")
+		else:
+			print("\nHMMer searching %d predicted ORFs against pVOGs " \
+				"HMMs..." % (n-m))
+			hmmer_search(hmmer_in, args.output, args.e_value, args.threads)
+			o = parse_hmmer_result(args.output)
+			print("Mapped %d of %d ORFs using HMMer." % (o, n-m))
+			del(hmmer_in)
+			if args.orf_alg == "best_hit":
+				hmmer_best_hit(args.output)
 
 
 	#Calculate the ORF LCAs based on BLAST results
