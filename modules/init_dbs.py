@@ -22,7 +22,7 @@ import modules.settings as settings
 
 
 #Append new indices to acc2tax table
-def append_acc2tax(acc2tax, db):
+def append_acc2tax(node_merges, acc2tax, db):
 
 	if db == "RefSeq":
 		path = settings.acc2tax_refseq_path
@@ -30,7 +30,22 @@ def append_acc2tax(acc2tax, db):
 		path = settings.acc2tax_vogs_path
 
 	sys.stdout.write("Added %d %s entries\n" % (len(acc2tax), db))
-	with open(path, "a") as out_file:
+	merged_nodes = node_merges.keys()
+	lines = list()
+	with open(path, "r") as in_file:
+		in_file.readline()
+		for line in in_file:
+			data = line.strip().split()
+			acc = data[0]
+			taxid = data[1]
+			if taxid in merged_nodes:
+				taxid = node_merges[taxid]
+				line = "%s\t%s\n" % (acc, taxid)
+			lines.append(line)
+	with open(path, "w") as out_file:
+		out_file.write("#Accession\tTaxid\n")
+		for line in lines:
+			out_file.write(line)
 		for acc in acc2tax.keys():
 			out_file.write("%s\t%s\n" % (acc, acc2tax[acc]))
 
@@ -156,7 +171,7 @@ def extract_tree(file, path):
 	tar.extractall(path = tmp_path)
 	tar.close()
 	os.remove(file)
-	relevant = ["nodes.dmp", "names.dmp"]
+	relevant = ["nodes.dmp", "names.dmp", "merged.dmp"]
 	for member in tar_members:
 		if member in relevant:
 			move(os.path.join(tmp_path, member), os.path.dirname(path))
@@ -242,8 +257,10 @@ def init_dbs():
 	os.remove(settings.blast_db_path)
 	nodes_file = os.path.join(os.path.dirname(settings.tree_path), "nodes.dmp")
 	names_file = os.path.join(os.path.dirname(settings.tree_path), "names.dmp")
+	merged_file = os.path.join(os.path.dirname(settings.tree_path), "merged.dmp")
 	os.remove(nodes_file)
 	os.remove(names_file)
+	os.remove(merged_file)
 	sys.stdout.write("Done\n")
 
 
@@ -268,7 +285,7 @@ def make_hmmer_db():
 	if error:
 		sys.stderr.write("HMMer error:\n%s" % (error.decode("ascii")))
 
-#Creates a file that contains all information about the Viral Tax Tree
+#Creates a file that contains only viral nodes of the NCBI Tax Tree
 def make_tree_file():
 
 	class Node:
@@ -407,6 +424,19 @@ def missing_acc2tax_refseq():
 
 	return(missing)
 
+#Returns a dict of merged nodes in the NCBI Tax tree
+def read_merged_nodes():
+
+	merged_file = os.path.join(os.path.dirname(settings.tree_path), "merged.dmp")
+	node_merges = dict()
+	with open(merged_file) as in_file:
+		for line in in_file:
+			data = line.split("|")
+			old_id = data[0].strip()
+			new_id = data[1].strip()
+			node_merges[old_id] = new_id
+	return(node_merges)
+
 
 #When multiple TaxIDs are returned, pick the one
 #that has a node in the tree
@@ -433,8 +463,9 @@ def update_acc2tax():
 	missing_pvogs = missing_acc2tax_pvogs()
 	acc2tax_refseq = download_acc2tax(missing_refseq, "refseq")
 	acc2tax_pvogs = download_acc2tax(missing_pvogs, "pvogs")
-	append_acc2tax(acc2tax_refseq, "RefSeq")
-	append_acc2tax(acc2tax_pvogs, "pVOGs")
+	node_merges = read_merged_nodes()
+	append_acc2tax(node_merges, acc2tax_refseq, "RefSeq")
+	append_acc2tax(node_merges, acc2tax_pvogs, "pVOGs")
 
 
 def main():
